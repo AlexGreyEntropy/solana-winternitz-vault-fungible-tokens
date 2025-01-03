@@ -3025,9 +3025,9 @@ dependencies = [
 
 [[package]]
 name = "solana-winternitz"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a4049be4135bae8debb284d9fd6ac53a1426624b1fbc8276284050cbe544e6b"
+checksum = "49cd0f6b6149f9307a9ecbba5194b4294c7436875240aa236713f2c9d4da2303"
 dependencies = [
  "arrayref",
  "rand 0.8.5",

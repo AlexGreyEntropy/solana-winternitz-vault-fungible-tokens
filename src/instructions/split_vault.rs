@@ -36,7 +36,7 @@ impl SplitVault {
         message[40..].clone_from_slice(refund.key());
 
         // Recover our pubkey hash from the signature
-        let hash = self.signature.recover_pubkey(&message).hash();
+        let hash = self.signature.recover_pubkey(&message).merklize();
 
         // Fast PDA equivalence check
         if solana_nostd_sha256::hashv(&[

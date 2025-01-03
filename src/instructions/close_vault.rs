@@ -28,7 +28,7 @@ impl CloseVault {
         };
 
         // Recover our pubkey hash from the signature
-        let hash = self.signature.recover_pubkey(refund.key()).hash();
+        let hash = self.signature.recover_pubkey(refund.key()).merklize();
 
         // Fast PDA equivalence check
         if solana_nostd_sha256::hashv(&[

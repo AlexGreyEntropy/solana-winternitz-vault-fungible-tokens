@@ -5,7 +5,7 @@ The **Solana Winternitz Vault** is a **quantum-resistant lamports vault** that l
 ## Features
 
 - **Quantum-Resistance**: Implements WOTS for cryptographic resilience against quantum computing attacks.
-- **Efficient Hashing**: Uses a 224-but truncated Keccak256 lattice hash to conform to Solana's compute/instruction limits.
+- **Efficient Hashing**: Uses a 224-bit truncated Keccak256 lattice hash to conform to Solana's compute/instruction limits.
 
 ## Instructions Overview
 
@@ -20,11 +20,11 @@ The program provides three main instructions:
 Initialize a new vault by:
 
 - Generating a new **Winternitz keypair**.
-- Computing the Keccak256 hash of the public key.
-- Using the hash as the seed of a **Program-Derived Address (PDA)**.
+- Computing the Keccak256 merkle root of the public key.
+- Using the merkle root as the seed of a **Program-Derived Address (PDA)**.
 
 #### Notes:
-- **Hash Truncation**: Due to Solana's instruction data limits, lattice hashes are truncated to 224 bits, however the hash of the public key used in PDA generation utilised the full 256-bits as there are no significant data limitations when opening a vault from an account hash.
+- **Hash Truncation**: Due to Solana's instruction data limits, lattice hashes are truncated to 224 bits, however the merkle root of the public key used in PDA generation utilises the full 256-bits as there are no significant data limitations when opening a vault from an account hash.
 
 ### 2. Split Vault
 
@@ -62,7 +62,7 @@ The program includes a comprehensive suite of tests to validate functionality:
 
 ## Security Considerations
 
-- **Quantum Security**: The scheme ensures at least \(112\)-bit quantum security for collision resistance and \(224\)-bit for preimage resistance for lattice hashes, along with 128-bit collision resistance and 256-bit preimage resistance for the public key hash. While the original Winternitz scheme uses untruncated Sha256 hashes, as Keccak is significantly more resistant to length-extension attacks, in a truncated scenario, it is by far the superior choice.
+- **Quantum Security**: The scheme ensures at least \(112\)-bit quantum security for collision resistance and \(224\)-bit for preimage resistance for lattice hashes, along with 128-bit collision resistance and 256-bit preimage resistance for the public key merkle root. While the original Winternitz scheme uses untruncated Sha256 hashes, as Keccak is significantly more resistant to length-extension attacks, in a truncated scenario, it is by far the superior choice.
 - **Reuse**: Winternitz signatures are for single-use only. Each time you sign a message, you reveal ~50% of your private key, lowering your own security guarantees. That is why we close and open new vaults with each spend. Please be careful if you are modifying this contract to retain this property.
 - **Limitations**: This program is carefully optimized to operate within Solana's compute unit and instruction size constraints.
 - **Update Authority**: While PDAs themselves should be quantum resistant, if the update authority of a program deploying this contract is a keypair, your funds are still at risk. Luckily, it's also possible to use Winternitz signatures to protect a program's update authority ;)

@@ -17,7 +17,7 @@ mod tests {
 
     #[test]
     fn open_vault() {
-        let winternitz_pubkey_hash = WinternitzPrivkey::generate().pubkey().hash();
+        let winternitz_pubkey_hash = WinternitzPrivkey::generate().pubkey().merklize();
 
         let program_id = Pubkey::new_from_array(crate::ID);
 
@@ -70,13 +70,13 @@ mod tests {
         let keypair = Keypair::new();
 
         let (vault, bump) =
-            Pubkey::find_program_address(&[&winternitz_privkey.pubkey().hash()], &program_id);
+            Pubkey::find_program_address(&[&winternitz_privkey.pubkey().merklize()], &program_id);
         let (split, _) = Pubkey::find_program_address(
-            &[&WinternitzPrivkey::generate().pubkey().hash()],
+            &[&WinternitzPrivkey::generate().pubkey().merklize()],
             &program_id,
         );
         let (refund, _) = Pubkey::find_program_address(
-            &[&WinternitzPrivkey::generate().pubkey().hash()],
+            &[&WinternitzPrivkey::generate().pubkey().merklize()],
             &program_id,
         );
 
@@ -147,7 +147,7 @@ mod tests {
         let keypair = Keypair::new();
         let to = keypair.pubkey();
         let (vault, bump) =
-            Pubkey::find_program_address(&[&winternitz_privkey.pubkey().hash()], &program_id);
+            Pubkey::find_program_address(&[&winternitz_privkey.pubkey().merklize()], &program_id);
         let signature = winternitz_privkey.sign(&to.as_ref());
 
         let close_vault_instruction = Instruction::new_with_bytes(
