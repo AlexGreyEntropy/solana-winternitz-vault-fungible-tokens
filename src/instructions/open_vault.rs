@@ -1,3 +1,4 @@
+use arrayref::array_refs;
 use pinocchio::{
     account_info::AccountInfo,
     instruction::{Seed, Signer},
@@ -7,27 +8,32 @@ use pinocchio::{
 };
 use pinocchio_system::instructions::CreateAccount;
 
-pub struct OpenVault;
+pub struct OpenVault {
+    hash: [u8; 32],
+    bump: [u8; 1],
+}
 
 impl OpenVault {
-    pub fn process(instruction_data: &[u8], accounts: &[AccountInfo]) -> ProgramResult {
+    pub fn deserialize(bytes: &[u8]) -> Result<Self, ProgramError> {
+        let data: [u8; 33] = bytes
+            .try_into()
+            .map_err(|_| ProgramError::InvalidInstructionData)?;
+
+        let (hash, bump) = array_refs![&data, 32, 1];
+        Ok(Self {
+            hash: *hash,
+            bump: *bump,
+        })
+    }
+
+    pub fn process(&self, accounts: &[AccountInfo]) -> ProgramResult {
         // Assert we have exactly 2 accounts
         let [payer, vault, _system_program] = accounts else {
             return Err(ProgramError::NotEnoughAccountKeys);
         };
 
-        // Split Bump from WinternitzPubkey hash
-        let (bump, data) = instruction_data
-            .split_first_chunk::<1>()
-            .ok_or(ProgramError::InvalidInstructionData)?;
-
-        // Get our pubkey hash from the instruction data
-        let pubkey_hash: [u8; 32] = data
-            .try_into()
-            .map_err(|_| ProgramError::InvalidInstructionData)?;
-
         let lamports = Rent::get()?.minimum_balance(0);
-        let seeds = [Seed::from(&pubkey_hash), Seed::from(bump)];
+        let seeds = [Seed::from(&self.hash), Seed::from(&self.bump)];
         let signers = [Signer::from(&seeds)];
 
         // Create our vault

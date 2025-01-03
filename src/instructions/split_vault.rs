@@ -4,33 +4,41 @@ use pinocchio::{
 };
 use solana_winternitz::signature::WinternitzSignature;
 
-pub struct CloseVault {
+pub struct SplitVault {
     signature: WinternitzSignature,
+    amount: u64,
     bump: [u8; 1],
 }
 
-impl CloseVault {
+impl SplitVault {
     pub fn deserialize(bytes: &[u8]) -> Result<Self, ProgramError> {
-        let data: [u8; core::mem::size_of::<WinternitzSignature>() + 1] = bytes
+        let data: [u8; 905] = bytes
             .try_into()
             .map_err(|_| ProgramError::InvalidInstructionData)?;
 
-        let (signature_bytes, bump) = array_refs![&data, 896, 1];
+        let (signature_bytes, amount_bytes, bump) = array_refs![&data, 896, 8, 1];
 
         Ok(Self {
             signature: WinternitzSignature::from(*signature_bytes),
+            amount: u64::from_le_bytes(*amount_bytes),
             bump: *bump,
         })
     }
 
     pub fn process(self, accounts: &[AccountInfo]) -> ProgramResult {
         // Assert we have exactly 2 accounts
-        let [vault, refund] = accounts else {
+        let [vault, split, refund] = accounts else {
             return Err(ProgramError::NotEnoughAccountKeys);
         };
 
+        // Assemble our Split message
+        let mut message = [0u8; 72];
+        message[0..8].clone_from_slice(&self.amount.to_le_bytes());
+        message[8..40].clone_from_slice(split.key());
+        message[40..].clone_from_slice(refund.key());
+
         // Recover our pubkey hash from the signature
-        let hash = self.signature.recover_pubkey(refund.key()).hash();
+        let hash = self.signature.recover_pubkey(&message).hash();
 
         // Fast PDA equivalence check
         if solana_nostd_sha256::hashv(&[
@@ -47,7 +55,8 @@ impl CloseVault {
         // Close Vault and refund balance to Refund account
         vault.realloc(0, false)?;
 
-        *refund.try_borrow_mut_lamports()? += vault.lamports();
+        *split.try_borrow_mut_lamports()? += self.amount;
+        *refund.try_borrow_mut_lamports()? += vault.lamports().saturating_sub(self.amount);
         *vault.try_borrow_mut_lamports()? = 0;
 
         vault.assign(&Pubkey::default());

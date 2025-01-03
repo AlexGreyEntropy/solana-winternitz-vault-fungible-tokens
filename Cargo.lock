@@ -3038,6 +3038,7 @@ dependencies = [
 name = "solana-winternitz-vault"
 version = "0.1.0"
 dependencies = [
+ "arrayref",
  "mollusk-svm",
  "pinocchio",
  "pinocchio-system",

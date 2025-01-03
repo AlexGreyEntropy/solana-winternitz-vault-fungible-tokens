@@ -20,9 +20,12 @@ fn process_instruction(
     accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> ProgramResult {
-    match accounts.len() {
-        3 => OpenVault::process(instruction_data, accounts),
-        2 => CloseVault::process(instruction_data, accounts),
-        _ => Err(ProgramError::InvalidInstructionData),
+    let (discriminator, data) = instruction_data
+        .split_first()
+        .ok_or(ProgramError::InvalidInstructionData)?;
+    match VaultInstructions::try_from(discriminator)? {
+        VaultInstructions::SplitVault => SplitVault::deserialize(data)?.process(accounts),
+        VaultInstructions::OpenVault => OpenVault::deserialize(data)?.process(accounts),
+        VaultInstructions::CloseVault => CloseVault::deserialize(data)?.process(accounts),
     }
 }
