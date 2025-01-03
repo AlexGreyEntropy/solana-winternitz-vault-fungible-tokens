@@ -23,7 +23,7 @@ impl SplitVault {
         })
     }
 
-    pub fn process(self, accounts: &[AccountInfo]) -> ProgramResult {
+    pub fn process(&self, accounts: &[AccountInfo]) -> ProgramResult {
         // Assert we have exactly 2 accounts
         let [vault, split, refund] = accounts else {
             return Err(ProgramError::NotEnoughAccountKeys);

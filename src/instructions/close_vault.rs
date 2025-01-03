@@ -21,7 +21,7 @@ impl CloseVault {
         })
     }
 
-    pub fn process(self, accounts: &[AccountInfo]) -> ProgramResult {
+    pub fn process(&self, accounts: &[AccountInfo]) -> ProgramResult {
         // Assert we have exactly 2 accounts
         let [vault, refund] = accounts else {
             return Err(ProgramError::NotEnoughAccountKeys);
