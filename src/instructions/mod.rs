@@ -7,5 +7,5 @@ pub use close_vault::*;
 pub mod split_vault;
 pub use split_vault::*;
 
-pub mod instructions;
-pub use instructions::*;
+pub mod vault_instructions;
+pub use vault_instructions::*;

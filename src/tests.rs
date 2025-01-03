@@ -121,10 +121,16 @@ mod tests {
         assert!(!result.program_result.is_err());
 
         // Ensure our transaction isn't oversized
-        let compute_budget_instruction =
+        let compute_unit_limit_instruction =
             compute_budget::ComputeBudgetInstruction::set_compute_unit_limit(900000);
+        let compute_unit_price_instruction =
+            compute_budget::ComputeBudgetInstruction::set_compute_unit_price(200000);
         let message = Message::new(
-            &[compute_budget_instruction, split_vault_instruction],
+            &[
+                compute_unit_limit_instruction,
+                compute_unit_price_instruction,
+                split_vault_instruction,
+            ],
             Some(&keypair.pubkey()),
         );
         let mut tx = Transaction::new_unsigned(message);
@@ -171,10 +177,16 @@ mod tests {
         assert!(!result.program_result.is_err());
 
         // Ensure our transaction isn't oversized
-        let compute_budget_instruction =
+        let compute_unit_limit_instruction =
             compute_budget::ComputeBudgetInstruction::set_compute_unit_limit(900000);
+        let compute_unit_price_instruction =
+            compute_budget::ComputeBudgetInstruction::set_compute_unit_price(200000);
         let message = Message::new(
-            &[compute_budget_instruction, close_vault_instruction],
+            &[
+                compute_unit_limit_instruction,
+                compute_unit_price_instruction,
+                close_vault_instruction,
+            ],
             Some(&keypair.pubkey()),
         );
         let mut tx = Transaction::new_unsigned(message);

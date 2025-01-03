@@ -1,6 +1,8 @@
 pub mod instructions;
-pub mod tests;
 use instructions::*;
+
+#[cfg(test)]
+pub mod tests;
 
 use pinocchio::{
     account_info::AccountInfo, entrypoint, program_error::ProgramError, pubkey::Pubkey,

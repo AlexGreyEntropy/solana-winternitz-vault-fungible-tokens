@@ -1,7 +1,5 @@
 use arrayref::array_refs;
-use pinocchio::{
-    account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey, ProgramResult,
-};
+use pinocchio::{account_info::AccountInfo, program_error::ProgramError, ProgramResult};
 use solana_winternitz::signature::WinternitzSignature;
 
 pub struct SplitVault {
@@ -52,15 +50,10 @@ impl SplitVault {
             return Err(ProgramError::MissingRequiredSignature);
         }
 
-        // Close Vault and refund balance to Refund account
-        vault.realloc(0, false)?;
-
+        // Close Vault, send split balance to Split account, refund remainder to Refund account
         *split.try_borrow_mut_lamports()? += self.amount;
         *refund.try_borrow_mut_lamports()? += vault.lamports().saturating_sub(self.amount);
-        *vault.try_borrow_mut_lamports()? = 0;
 
-        vault.assign(&Pubkey::default());
-
-        Ok(())
+        vault.close()
     }
 }

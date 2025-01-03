@@ -1,7 +1,5 @@
 use arrayref::array_refs;
-use pinocchio::{
-    account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey, ProgramResult,
-};
+use pinocchio::{account_info::AccountInfo, program_error::ProgramError, ProgramResult};
 use solana_winternitz::signature::WinternitzSignature;
 
 pub struct CloseVault {
@@ -45,13 +43,7 @@ impl CloseVault {
         }
 
         // Close Vault and refund balance to Refund account
-        vault.realloc(0, false)?;
-
         *refund.try_borrow_mut_lamports()? += vault.lamports();
-        *vault.try_borrow_mut_lamports()? = 0;
-
-        vault.assign(&Pubkey::default());
-
-        Ok(())
+        vault.close()
     }
 }
