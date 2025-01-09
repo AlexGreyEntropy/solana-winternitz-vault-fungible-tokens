@@ -28,7 +28,7 @@ Initialize a new vault by:
 
 ### 2. Split Vault
 
-This instruction allows splitting the balance of a vault accross two accounts:
+This instruction allows splitting the balance of a vault across two accounts:
 
 - A **split account** receives a specified amount of lamports.
 - A **refund account** receives the remainder of the lamports.
