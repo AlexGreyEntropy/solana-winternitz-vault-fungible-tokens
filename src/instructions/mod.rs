@@ -9,3 +9,6 @@ pub use split_vault::*;
 
 pub mod vault_instructions;
 pub use vault_instructions::*;
+
+pub mod token_vault;
+pub use token_vault::*;
