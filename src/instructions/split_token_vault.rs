@@ -37,7 +37,7 @@ pub fn handle_split_token_vault(
     signature: Vec<u8>,
     message: Vec<u8>,
 ) -> Result<()> {
-    // Verify Winternitz signature using existing utils
+    // Verify Winternitz signature using existing logic
     let recovered_pubkey = verify_winternitz_signature(&signature, &message)?;
     verify_pubkey_root(&recovered_pubkey, &ctx.accounts.vault.pubkey_root)?;
     
