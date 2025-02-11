@@ -153,10 +153,6 @@ anchor build
 ```bash
 anchor test
 ```
-### Building
-```bash
-anchor build
-```
 ### Deployment
 ```bash
 anchor deploy
