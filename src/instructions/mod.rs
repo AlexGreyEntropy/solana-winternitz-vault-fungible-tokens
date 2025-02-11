@@ -10,11 +10,18 @@ pub use split_vault::*;
 pub mod vault_instructions;
 pub use vault_instructions::*;
 
-pub mod token_vault;
+mod vault;
+mod token_vault;
+
+pub use vault::*;
 pub use token_vault::*;
 
-pub mod open_token_vault;
-pub mod split_token_vault;
+mod open;
+mod split;
+mod open_token_vault;
+mod split_token_vault;
 
+pub use open::*;
+pub use split::*;
 pub use open_token_vault::*;
 pub use split_token_vault::*;
