@@ -40,7 +40,7 @@ A quantum-resistant vault system for Solana, implementing both native SOL and SP
 
 ### Native SOL Vault
 
-typescript
+typescript: markdown
 
 // Create vault
 open(pubkey_root: [u8; 32])
