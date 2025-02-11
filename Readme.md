@@ -11,7 +11,7 @@ A quantum-resistant vault system for Solana, implementing both native SOL and SP
 - 💫 Single-use design for maximum security
 
 ### Token Vault
-- 🪙 Support for all SPL tokens
+- 💰 Support for all SPL tokens
 - 🏦 PDA-controlled token accounts
 - 🔄 Secure token transfers
 - 🔒 Automatic vault closure
