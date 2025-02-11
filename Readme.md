@@ -1,76 +1,222 @@
 # Solana Winternitz Vault
 
-The **Solana Winternitz Vault** is a **quantum-resistant lamports vault** that leverages **Winternitz One-Time Signatures** (WOTS) for security. The vault implements a truncated Keccak256 hash, offering **224-bits of preimage resistance**, which remains robust against quantum threats, including Grover's algorithm.
+A quantum-resistant vault system for Solana, implementing both native SOL and SPL token storage using Winternitz One-Time Signatures (W-OTS). This system provides post-quantum security for your digital assets on Solana.
 
-## Features
+## 🌟 Features
 
-- **Quantum-Resistance**: Implements WOTS for cryptographic resilience against quantum computing attacks.
-- **Efficient Hashing**: Uses a 224-bit truncated Keccak256 hash to conform to Solana's compute/instruction limits.
+### Native SOL Vault
+- ✨ Quantum-resistant vault creation for SOL
+- 🔐 One-time signature-based security
+- 🌳 Merkle tree verification
+- 💫 Single-use design for maximum security
 
-## Instructions Overview
+### Token Vault
+- 🪙 Support for all SPL tokens
+- 🏦 PDA-controlled token accounts
+- 🔄 Secure token transfers
+- 🔒 Automatic vault closure
+- 🛡️ Post-quantum security
 
-The program provides three main instructions:
+## 🏗️ Architecture
 
-1. **Open Vault**
-2. **Split Vault**
-3. **Close Vault**
+### Vault Types
+1. **Native SOL Vault**
+   - Direct SOL storage
+   - Lamport-based transfers
+   - PDA-based vault control
 
-### 1. Open Vault
+2. **Token Vault**
+   - SPL token storage
+   - Associated Token Account management
+   - PDA authority over tokens
 
-Initialize a new vault by:
+### Security Model
+- Winternitz One-Time Signatures (W-OTS)
+- Merkle tree authentication
+- Single-use vault pattern
+- Zero on-chain private key storage
 
-- Generating a new **Winternitz keypair**.
-- Computing the Keccak256 merkle root of the public key.
-- Using the merkle root as the seed of a **Program-Derived Address (PDA)**.
+## 📋 Instructions
 
-#### Notes:
-- **Hash Truncation**: Due to Solana's instruction data limits, hashes are truncated to 224 bits, however the merkle root of the public key used in PDA generation utilises the full 256-bits as there are no significant data limitations when opening a vault from an account hash.
+### Native SOL Vault
 
-### 2. Split Vault
+typescript
+// Create vault
+open(pubkey_root: [u8; 32])
+// Split vault
+split(
+amount: u64,
+signature: Vec<u8>,
+message: Vec<u8>
+)
 
-This instruction allows splitting the balance of a vault across two accounts:
+### Token Vault
 
-- A **split account** receives a specified amount of lamports.
-- A **refund account** receives the remainder of the lamports.
+typescript
+// Create token vault
+open_token_vault(pubkey_root: [u8; 32])
+// Split token vault
+split_token_vault(
+amount: u64,
+signature: Vec<u8>,
+message: Vec<u8>
+)
 
-This enables you to split the funds from a vault into two accounts. The primary purpose of this is to enable you to open two new vaults and transfer the contents of an existing vault into them with an unbroken chain of quantum-resistant cryptography.
+## 💻 Usage Examples
 
-#### Steps:
-1. The user generates a Winternitz signature over a message containing the `amount` of lamports to transfer, along with the public key of the `split` account and the `refund` account.
-2. The signature is used to verify ownership of the `vault` and prevent malleability in the case of a transaction replay attack.
-3. The Winternitz public key is recovered from the signature, hashed and efficiently validated against the PDA seeds.
-4. The lamports `amount` is distributed to the `split` account.
-5. The remaining balance, if any, is refunded to the `refund` account and the `vault` is closed.
+### Native SOL Vault
 
-### 3. Close Vault
+typescript
+// Initialize a vault
+const tx = await program.methods
+.open(pubkeyRoot)
+.accounts({
+payer: wallet.publicKey,
+vault: vaultPDA,
+systemProgram: SystemProgram.programId,
+})
+.rpc();
+// Split vault contents
+const splitTx = await program.methods
+.split(
+new BN(amount),
+signature,
+message
+)
+.accounts({
+vault: vaultPDA,
+split: recipientAddress,
+refund: refundAddress,
+})
+.rpc();
 
-This instruction closes a vault and transfers all remaining lamports to a specified account.
+### Token Vault
 
-#### Steps:
-1. The user generates a Winternitz signature over a message containing the public key of the `refund` account.
-2. The signature is used to verify ownership of the `vault` and prevent malleability in the case of a transaction replay attack.
-3. The PDA and signature are validated.
-4. The vault is closed, and its balance is refunded to the designated account.
+typescript
+// Create token vault
+const tx = await program.methods
+.openTokenVault(pubkeyRoot)
+.accounts({
+payer: wallet.publicKey,
+tokenMint: mintAddress,
+vault: vaultPDA,
+vaultTokenAccount: vaultTokenPDA,
+systemProgram: SystemProgram.programId,
+tokenProgram: TOKEN_PROGRAM_ID,
+rent: SYSVAR_RENT_PUBKEY,
+})
+.rpc();
+// Split token vault
+const splitTx = await program.methods
+.splitTokenVault(
+new BN(amount),
+signature,
+message
+)
+.accounts({
+vault: vaultPDA,
+vaultTokenAccount: vaultTokenPDA,
+splitTokenAccount: recipientTokenAccount,
+refundTokenAccount: refundTokenAccount,
+refundAccount: refundWallet,
+tokenProgram: TOKEN_PROGRAM_ID,
+})
+.rpc();
 
-## Testing
+## 🛠️ Development Setup
 
-The program includes a comprehensive suite of tests to validate functionality:
+### Prerequisites
+- Rust 1.68.0 or later
+- Solana CLI tools
+- Anchor Framework 0.28.0 or later
+- Node.js 16+
 
-1. **Open Vault**: Ensures the vault is created correctly with the appropriate PDA and initial lamport balance.
-2. **Split Vault**: Verifies that funds are correctly split and authenticity is preserved.
-3. **Close Vault**: Confirms that the vault closes securely and refunds the remaining balance.
+### Installation
 
-## Security Considerations
+bash
 
-- **Quantum Security**: The scheme ensures at least \(112\)-bit quantum security for collision resistance and \(224\)-bit for preimage resistance for hashes, along with 128-bit collision resistance and 256-bit preimage resistance for the public key merkle root. While the original Winternitz scheme uses untruncated Sha256 hashes, as Keccak is significantly more resistant to length-extension attacks, in a truncated scenario, it is by far the superior choice.
-- **Reuse**: Winternitz signatures are for single-use only. Each time you sign a message, you reveal ~50% of your private key, lowering your own security guarantees. That is why we close and open new vaults with each spend. Please be careful if you are modifying this contract to retain this property.
-- **Limitations**: This program is carefully optimized to operate within Solana's compute unit and instruction size constraints.
-- **Update Authority**: While PDAs themselves should be quantum resistant, if the update authority of a program deploying this contract is a keypair, your funds are still at risk. Luckily, it's also possible to use Winternitz signatures to protect a program's update authority ;)
+Clone the repository
+git clone https://github.com/yourusername/solana-winternitz-vault.git
+cd solana-winternitz-vault
 
-## Disclaimer
+Install dependencies
+yarn install
 
-Use this program at your own risk. I am a pretty good dev larping as a cryptographer. I'm pretty sure this is going to outperform your regular Ed25519 keypair in the case that a nation state decides to attack your wallet. 
+Build the program
+anchor build
 
-## Contributing
+Run tests
+anchor test
 
-Contributions are welcome! Please open issues or submit pull requests to improve functionality or documentation.
+### Building
+
+bash
+anchor build
+
+### Testing
+
+bash
+anchor test
+
+### Deployment
+
+bash
+anchor deploy
+
+## 🔒 Security Considerations
+
+1. **Single-Use Principle**
+   - Each vault must only be used once
+   - Never reuse signatures
+   - Always create new vaults for new transactions
+
+2. **Message Security**
+   - Use unique messages for each signature
+   - Include timestamp or nonce in messages
+   - Verify message integrity
+
+3. **Token Safety**
+   - Validate token account ownership
+   - Verify mint addresses
+   - Check account balances
+
+4. **Signature Verification**
+   - Always verify signatures
+   - Check Merkle proofs
+   - Validate public key roots
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Winternitz One-Time Signature scheme
+- Solana blockchain
+- Anchor Framework
+- SPL Token Program
+
+## 📚 Additional Resources
+
+- [Solana Documentation](https://docs.solana.com/)
+- [Anchor Framework Documentation](https://www.anchor-lang.com/)
+- [SPL Token Documentation](https://spl.solana.com/token)
+- [Post-Quantum Cryptography](https://en.wikipedia.org/wiki/Post-quantum_cryptography)
+
+## ⚠️ Disclaimer
+
+This software is provided "as is", without warranty of any kind. Use at your own risk.
+
+---
+
+Built with ❤️ for the Solana ecosystem
