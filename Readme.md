@@ -41,6 +41,7 @@ A quantum-resistant vault system for Solana, implementing both native SOL and SP
 ### Native SOL Vault
 
 typescript
+
 // Create vault
 open(pubkey_root: [u8; 32])
 // Split vault
@@ -53,6 +54,7 @@ message: Vec<u8>
 ### Token Vault
 
 typescript
+
 // Create token vault
 open_token_vault(pubkey_root: [u8; 32])
 // Split token vault
@@ -67,6 +69,7 @@ message: Vec<u8>
 ### Native SOL Vault
 
 typescript
+
 // Initialize a vault
 const tx = await program.methods
 .open(pubkeyRoot)
@@ -93,6 +96,7 @@ refund: refundAddress,
 ### Token Vault
 
 typescript
+
 // Create token vault
 const tx = await program.methods
 .openTokenVault(pubkeyRoot)
@@ -135,17 +139,17 @@ tokenProgram: TOKEN_PROGRAM_ID,
 
 bash
 
-Clone the repository
+### Clone the repository
 git clone https://github.com/yourusername/solana-winternitz-vault.git
 cd solana-winternitz-vault
 
-Install dependencies
+### Install dependencies
 yarn install
 
-Build the program
+### Build the program
 anchor build
 
-Run tests
+### Run tests
 anchor test
 
 ### Building
