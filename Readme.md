@@ -40,7 +40,7 @@ A quantum-resistant vault system for Solana, implementing both native SOL and SP
 
 ### Native SOL Vault
 
-typescript: markdown
+'''typescript
 
 // Create vault
 open(pubkey_root: [u8; 32])
@@ -50,10 +50,10 @@ amount: u64,
 signature: Vec<u8>,
 message: Vec<u8>
 )
-
+'''
 ### Token Vault
 
-typescript
+'''typescript
 
 // Create token vault
 open_token_vault(pubkey_root: [u8; 32])
@@ -63,12 +63,13 @@ amount: u64,
 signature: Vec<u8>,
 message: Vec<u8>
 )
+'''
 
 ## 💻 Usage Examples
 
 ### Native SOL Vault
 
-typescript
+'''typescript
 
 // Initialize a vault
 const tx = await program.methods
@@ -92,10 +93,11 @@ split: recipientAddress,
 refund: refundAddress,
 })
 .rpc();
+'''
 
 ### Token Vault
 
-typescript
+'''typescript
 
 // Create token vault
 const tx = await program.methods
@@ -126,6 +128,7 @@ refundAccount: refundWallet,
 tokenProgram: TOKEN_PROGRAM_ID,
 })
 .rpc();
+'''
 
 ## 🛠️ Development Setup
 
@@ -137,7 +140,7 @@ tokenProgram: TOKEN_PROGRAM_ID,
 
 ### Installation
 
-bash
+'''bash
 
 ### Clone the repository
 git clone https://github.com/yourusername/solana-winternitz-vault.git
@@ -154,18 +157,21 @@ anchor test
 
 ### Building
 
-bash
+'''bash
 anchor build
+'''
 
 ### Testing
 
-bash
+'''bash
 anchor test
+'''
 
 ### Deployment
 
-bash
+'''bash
 anchor deploy
+'''
 
 ## 🔒 Security Considerations
 
